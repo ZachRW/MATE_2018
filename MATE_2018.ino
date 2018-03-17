@@ -37,13 +37,13 @@ void loop() {
   l2     = mapFloat(PS4.getAnalogButton(L2), 0, 255, 0, 1);
   r2     = mapFloat(PS4.getAnalogButton(R2), 0, 255, 0, 1);
 
-  if (abs(leftX) < .1) {
+  if (fabs(leftX) < .1) {
     leftX = 0;
   }
-  if (abs(leftY) < .1) {
+  if (fabs(leftY) < .1) {
     leftY = 0;
   }
-  if (abs(rightX) < .1) {
+  if (fabs(rightX) < .1) {
     rightX = 0;
   }
   if (l2 < .1) {
