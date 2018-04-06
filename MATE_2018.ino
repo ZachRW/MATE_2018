@@ -13,7 +13,7 @@ PS4USB PS4(&Usb);
 SendOnlySoftwareSerial front(2);
 SendOnlySoftwareSerial back(3);
 SendOnlySoftwareSerial vert(4);
-float frontLeft, frontRight, backLeft, backRight, vertPower;
+float frontLeft, frontRight, backLeft, backRight, vertPower, clawPower;
 float leftX, leftY, rightX, l2, r2;
 
 void setup() {
@@ -21,10 +21,12 @@ void setup() {
   front.begin(9600);
   back.begin(9600);
   vert.begin(9600);
+
 #if !defined(__MIPSEL__)
   while (!Serial); // Wait for serial port to connect - used on Leonardo, Teensy and other boards with built-in USB CDC serial connection
 #endif
   Usb.Init();
+
   Serial.println("Start");
 }
 
@@ -64,6 +66,14 @@ void loop() {
     vertPower = r2;
   }
 
+  if (PS4.getButtonPress(TRIANGLE)) {
+    clawPower = 1;
+  } else if (PS4.getButtonPress(SQUARE)) {
+    clawPower = -1;
+  } else {
+    clawPower = 0;
+  }
+
   Serial.println();
   Serial.println(frontLeft);
   Serial.println(frontRight);
@@ -76,9 +86,16 @@ void loop() {
 float motorPower(bool right, bool forward) {
   int rightSign = right ? 1 : -1;
   int forwardSign = forward ? 1 : -1;
-  return rightSign * copysign(pow(leftX, 2), leftX)      // Strafing left and right
-         - forwardSign * copysign(pow(leftY, 2), leftY)  // Srafing forwards and backwards
-         + rightSign * forwardSign * rightX;             // Rotating
+  int xReflection = rightSign * copysign(1, leftX);
+  int yReflection = rightSign * copysign(1, rightX);
+
+  float result = xReflection * sqrt(sq(leftX) + sq(leftY) / sqrt(2);
+  if (xReflection * yReflection == -1) {
+  float absLeftX = fabs(leftX);
+    float absLeftY = fabs(leftY);
+    result *= (absLeftX - absLeftY) / (absLeftX + absLeftY);
+  }
+  return result;
 }
 
 void writePower() {
@@ -86,7 +103,8 @@ void writePower() {
   front.write(mapPower(frontRight, true));
   back.write(mapPower(backLeft, false));
   back.write(mapPower(backRight, true));
-  vert.write(mapPower(vertPower, false));
+  vert.write(mapPower(vertPower, true));
+  vert.write(mapPower(clawPower, false));
 }
 
 float mapFloat(float x, float in_min, float in_max, float out_min, float out_max) {
