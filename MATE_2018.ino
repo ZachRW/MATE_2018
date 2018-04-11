@@ -33,12 +33,14 @@ void setup() {
 void loop() {
   Usb.Task();
 
+  //Map inputs
   leftX  = mapFloat(PS4.getAnalogHat(LeftHatX), 0, 255, -1, 1);
   leftY  = mapFloat(PS4.getAnalogHat(LeftHatY), 0, 255, -1, 1);
   rightX = mapFloat(PS4.getAnalogHat(RightHatX), 0, 255, -1, 1);
   l2     = mapFloat(PS4.getAnalogButton(L2), 0, 255, 0, 1);
   r2     = mapFloat(PS4.getAnalogButton(R2), 0, 255, 0, 1);
 
+  //Deadzones
   if (fabs(leftX) < .1) {
     leftX = 0;
   }
@@ -55,17 +57,20 @@ void loop() {
     r2 = 0;
   }
 
-  frontLeft  = motorPower(false, false);
-  frontRight = motorPower(true, false);
-  backLeft   = motorPower(false, true);
-  backRight  = motorPower(true, true);
+  //Sets horizontal motor power
+  frontLeft  = motorPower(true, true);
+  frontRight = motorPower(false, true);
+  backLeft   = motorPower(true, false);
+  backRight  = motorPower(false, false);
 
+  //Sets vertical motor power
   if (l2 != 0) {
     vertPower = -l2;
   } else {
     vertPower = r2;
   }
 
+  //Sets claw power
   if (PS4.getButtonPress(TRIANGLE)) {
     clawPower = 1;
   } else if (PS4.getButtonPress(SQUARE)) {
@@ -74,37 +79,38 @@ void loop() {
     clawPower = 0;
   }
 
+  //Serial output
   Serial.println();
   Serial.println(frontLeft);
   Serial.println(frontRight);
   Serial.println(backLeft);
   Serial.println(backRight);
 
-  writePower();
+  //Writes the motor power with the sabertooth controllers
+  front.write(mapPower(frontLeft, false));
+  front.write(mapPower(frontRight, true));
+  back.write(mapPower(backLeft, false));
+  back.write(mapPower(backRight, true));
+  vert.write(mapPower(vertPower, false));
+  vert.write(mapPower(clawPower, true));
 }
 
 float motorPower(bool right, bool forward) {
   int rightSign = right ? 1 : -1;
   int forwardSign = forward ? 1 : -1;
   int xReflection = rightSign * copysign(1, leftX);
-  int yReflection = rightSign * copysign(1, rightX);
+  int yReflection = forwardSign * copysign(1, leftY);
 
-  float result = xReflection * sqrt(sq(leftX) + sq(leftY) / sqrt(2);
-  if (xReflection * yReflection == -1) {
+  float result = xReflection * sqrt((sq(leftX) + sq(leftY)) / 2);
+
   float absLeftX = fabs(leftX);
-    float absLeftY = fabs(leftY);
+  float absLeftY = fabs(leftY);
+  if (xReflection * yReflection == -1 && absLeftX + absLeftY != 0) {
     result *= (absLeftX - absLeftY) / (absLeftX + absLeftY);
   }
-  return result;
-}
 
-void writePower() {
-  front.write(mapPower(frontLeft, false));
-  front.write(mapPower(frontRight, true));
-  back.write(mapPower(backLeft, false));
-  back.write(mapPower(backRight, true));
-  vert.write(mapPower(vertPower, true));
-  vert.write(mapPower(clawPower, false));
+  return xReflection * copysign(sqrt(2 * sq(result)), result)
+         + rightSign * forwardSign * rightX;
 }
 
 float mapFloat(float x, float in_min, float in_max, float out_min, float out_max) {
