@@ -101,7 +101,7 @@ float motorPower(bool right, bool forward) {
   int xReflection = rightSign * copysign(1, leftX);
   int yReflection = forwardSign * copysign(1, leftY);
 
-  float result = xReflection * sqrt((sq(leftX) + sq(leftY)) / 2);
+  float result = xReflection * sqrt(sq(leftX) + sq(leftY));
 
   float absLeftX = fabs(leftX);
   float absLeftY = fabs(leftY);
@@ -109,8 +109,7 @@ float motorPower(bool right, bool forward) {
     result *= (absLeftX - absLeftY) / (absLeftX + absLeftY);
   }
 
-  return xReflection * copysign(sqrt(2 * sq(result)), result)
-         + rightSign * forwardSign * rightX;
+  return xReflection * result + rightSign * forwardSign * rightX;
 }
 
 float mapFloat(float x, float in_min, float in_max, float out_min, float out_max) {
