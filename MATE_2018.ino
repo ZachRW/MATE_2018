@@ -87,11 +87,11 @@ void loop() {
   Serial.println(backRight);
 
   //Writes the motor power with the sabertooth controllers
-  front.write(mapPower(frontLeft, false));
-  front.write(mapPower(frontRight, true));
-  back.write(mapPower(backLeft, false));
-  back.write(mapPower(backRight, true));
-  vert.write(mapPower(vertPower, false));
+  front.write(mapPower(frontLeft, true));
+  front.write(mapPower(frontRight, false));
+  back.write(mapPower(backLeft, true));
+  back.write(mapPower(backRight, false));
+  vert.write(mapPower(-vertPower, false));
   vert.write(mapPower(clawPower, true));
 }
 
@@ -99,9 +99,9 @@ float motorPower(bool right, bool forward) {
   int rightSign = right ? 1 : -1;
   int forwardSign = forward ? 1 : -1;
   int xReflection = rightSign * copysign(1, leftX);
-  int yReflection = forwardSign * copysign(1, leftY);
+  int yReflection = forwardSign * copysign(1, -leftY);
 
-  float result = xReflection * sqrt(sq(leftX) + sq(leftY));
+  float result = sqrt(sq(leftX) + sq(leftY));
 
   float absLeftX = fabs(leftX);
   float absLeftY = fabs(leftY);
