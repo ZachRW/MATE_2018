@@ -72,26 +72,39 @@ void loop() {
 
   //Sets claw power
   if (PS4.getButtonPress(TRIANGLE)) {
-    clawPower = 1;
+    clawPower = .75;
   } else if (PS4.getButtonPress(SQUARE)) {
-    clawPower = -1;
+    clawPower = -.75;
   } else {
     clawPower = 0;
   }
 
   //Serial output
-  Serial.println();
-  Serial.println(frontLeft);
-  Serial.println(frontRight);
-  Serial.println(backLeft);
-  Serial.println(backRight);
+//  Serial.println();
+//  Serial.print("Front left: ");
+//  Serial.println(frontLeft);
+//  Serial.print("Front right: ");
+//  Serial.println(frontRight);
+//  Serial.print("Back left: ");
+//  Serial.println(backLeft);
+//  Serial.print("Back Right: ");
+//  Serial.println(backRight);
+//  Serial.print("Vertical: ");
+//  Serial.println(vertPower);
 
   //Writes the motor power with the sabertooth controllers
-  front.write(mapPower(frontLeft, true));
-  front.write(mapPower(frontRight, false));
-  back.write(mapPower(backLeft, true));
-  back.write(mapPower(backRight, false));
+//  Serial.println();
+//  Serial.print("Front left: ");
+  front.write(mapPower(-frontLeft, false));
+//  Serial.print("Front right: ");
+  front.write(mapPower(-frontRight, true));
+//  Serial.print("Back left: ");
+  back.write(mapPower(-backLeft, false));
+//  Serial.print("Back Right: ");
+  back.write(mapPower(backRight, true));
+//  Serial.print("Vertical: ");
   vert.write(mapPower(-vertPower, false));
+//  Serial.print("Claw: ");
   vert.write(mapPower(clawPower, true));
 }
 
@@ -119,9 +132,19 @@ float mapFloat(float x, float in_min, float in_max, float out_min, float out_max
 int mapPower(float motorPower, bool second) {
   motorPower = constrain(motorPower, -1, 1);
   if (second) {
-    return mapFloat(motorPower, -1, 1, 128, 255);
+    int result = mapFloat(motorPower, -1, 1, 128, 255);
+    if (abs(result - 191) < 3) {
+      result = 191;
+    }
+//    Serial.println(result);
+    return result;
   } else {
-    return mapFloat(motorPower, -1, 1, 1, 127);
+    int result = mapFloat(motorPower, -1, 1, 1, 127);
+    if (abs(result - 64) < 3) {
+      result = 64;
+    }
+//    Serial.println(result);
+    return result;
   }
 }
 
