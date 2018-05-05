@@ -71,9 +71,9 @@ void loop() {
   }
 
   //Sets claw power
-  if (PS4.getButtonPress(TRIANGLE)) {
+  if (PS4.getButtonPress(TRIANGLE) || PS4.getButtonPress(CIRCLE)) {
     clawPower = .75;
-  } else if (PS4.getButtonPress(SQUARE)) {
+  } else if (PS4.getButtonPress(SQUARE) || PS4.getButtonPress(CROSS)) {
     clawPower = -.75;
   } else {
     clawPower = 0;
@@ -129,17 +129,17 @@ float mapFloat(float x, float in_min, float in_max, float out_min, float out_max
   return (float) (x - in_min) * (out_max - out_min) / (float) (in_max - in_min) + out_min;
 }
 
-int mapPower(float motorPower, bool second) {
+byte mapPower(float motorPower, bool second) {
   motorPower = constrain(motorPower, -1, 1);
   if (second) {
-    int result = mapFloat(motorPower, -1, 1, 128, 255);
+    byte result = mapFloat(motorPower, -1, 1, 128, 255);
     if (abs(result - 191) < 3) {
       result = 191;
     }
 //    Serial.println(result);
     return result;
   } else {
-    int result = mapFloat(motorPower, -1, 1, 1, 127);
+    byte result = mapFloat(motorPower, -1, 1, 1, 127);
     if (abs(result - 64) < 3) {
       result = 64;
     }
