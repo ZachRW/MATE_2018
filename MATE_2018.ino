@@ -23,7 +23,7 @@ void setup() {
   vert.begin(9600);
 
 #if !defined(__MIPSEL__)
-  while (!Serial); // Wait for serial port to connect - used on Leonardo, Teensy and other boards with built-in USB CDC serial connection
+  while (!Serial);
 #endif
   Usb.Init();
 
@@ -79,32 +79,12 @@ void loop() {
     clawPower = 0;
   }
 
-  //Serial output
-//  Serial.println();
-//  Serial.print("Front left: ");
-//  Serial.println(frontLeft);
-//  Serial.print("Front right: ");
-//  Serial.println(frontRight);
-//  Serial.print("Back left: ");
-//  Serial.println(backLeft);
-//  Serial.print("Back Right: ");
-//  Serial.println(backRight);
-//  Serial.print("Vertical: ");
-//  Serial.println(vertPower);
-
   //Writes the motor power with the sabertooth controllers
-//  Serial.println();
-//  Serial.print("Front left: ");
   front.write(mapPower(-frontLeft, false));
-//  Serial.print("Front right: ");
   front.write(mapPower(-frontRight, true));
-//  Serial.print("Back left: ");
   back.write(mapPower(-backLeft, false));
-//  Serial.print("Back Right: ");
   back.write(mapPower(backRight, true));
-//  Serial.print("Vertical: ");
   vert.write(mapPower(-vertPower, false));
-//  Serial.print("Claw: ");
   vert.write(mapPower(clawPower, true));
 }
 
@@ -136,15 +116,12 @@ byte mapPower(float motorPower, bool second) {
     if (abs(result - 191) < 3) {
       result = 191;
     }
-//    Serial.println(result);
     return result;
   } else {
     byte result = mapFloat(motorPower, -1, 1, 1, 127);
     if (abs(result - 64) < 3) {
       result = 64;
     }
-//    Serial.println(result);
     return result;
   }
 }
-
